@@ -1,11 +1,68 @@
-# Tic-Tac-Toe with AI (Minimax Algorithm)
+# 🎮 Tic-Tac-Toe with AI (Minimax Algorithm)
 
-A simple terminal-based **Tic-Tac-Toe** game written in Python where a human player competes against an AI.  
+Um simples jogo da velha no terminal escrito em Python, onde um jogador humano compete contra uma IA.  
 
-## 🧠 About the AI
+## 🧠 Sobre a IA
 
-The AI uses the Minimax algorithm with Alpha-Beta pruning to simulate and evaluate all possible game outcomes. This allows it to always make the best move, making it an unbeatable opponent.
+- ✅ IA imbatível usando Minimax com poda Alpha-Beta  
+- 🎯 Prioriza vitórias rápidas e evita derrotas  
+- ♻️ Lógica de backtracking para simular todas as possibilidades do jogo  
 
-- ✅ Unbeatable AI using Minimax with pruning  
-- 🎯 Prioritizes fast victories and avoids losses  
-- ♻️ Backtracking logic to simulate all game possibilities  
+
+## 🎮 Como Jogar
+
+Clone este repositório:
+
+	git clone https://github.com/yourusername/tic-tac-toe-ai.git
+
+Execute o jogo:
+
+	python game.py
+
+1. Escolha jogar como **X** ou **O**  
+2. **X sempre joga primeiro**  
+3. Informe suas jogadas com os índices da linha e coluna (de 0 a 2), por exemplo:
+
+```
+Your move (row and column, from 0 to 2): 0 1
+```
+
+## 🧾 Estrutura do Código
+
+- play() – Inicia e gerencia o loop do jogo  
+- minimax() – Algoritmo recursivo principal para decisões ideais  
+- best_move() – Encontra a melhor jogada para a IA usando o Minimax  
+- isGameOver() – Verifica vitória ou empate  
+- possible_moves() – Retorna as jogadas disponíveis no tabuleiro  
+- show_board() – Exibe o tabuleiro no console  
+
+## 🛠 Requisitos
+
+- Python 3.6 ou superior  
+- Nenhuma biblioteca externa necessária  
+
+---
+
+## 📷 Exemplo de Saída
+
+```
+AI is thinking...
+ X | O | O
+-----------
+   | O | X
+-----------
+ O | X | X
+-----------
+O wins!
+
+```
+
+## 📄 Licença
+
+Este projeto é **open-source** e gratuito para uso.
+
+Feito com ☕ por **Emanuel Pedroza**
+
+![MuaKissGIF (2)](https://github.com/user-attachments/assets/2bc84399-8890-47c4-bca9-74546d5d07a6)
+
+

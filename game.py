@@ -1,132 +1,199 @@
+
+"""
+Author: Emanuel Pedroza
+Date: 04/06/2025
+Description: Implementation of a Tic-Tac-Toe game where a human plays against an AI.
+             The AI uses the Minimax algorithm with Alpha-Beta pruning to make optimal moves.
+"""
+
 import math
 
-# Verifica se há um vencedor ou empate
-# Caso haja, retorna o 'X', 'O' ou 'Empate'
-# Caso contrário, retorna None
-def checar_vencedor(tabuleiro):
-    linhas = tabuleiro
-    colunas = [list(col) for col in zip(*tabuleiro)]
-    diagonais = [[tabuleiro[i][i] for i in range(3)],
-                 [tabuleiro[i][2 - i] for i in range(3)]]
+#####
+# Minimax algorithm with alpha-beta pruning.
+# This function evaluates possible moves recursively to choose the best one for the AI.
+# The recursion is started by best_move function
+# Parameters:
+# - board: current game board (3x3 list)
+# - AISymbol: symbol used by the AI
+# - playerSymbol: symbol used by the human player
+# - alpha, beta: values used in alpha-beta pruning
+# - depth: current depth of the recursion
+# - maximizing: boolean indicating if it's the AI's turn (True) or the player's (False)
+#
+# Returns:
+# - An integer score representing the evaluation of the board
+#####
 
-    for linha in linhas + colunas + diagonais:
-        if linha == ['X'] * 3:
+def minimax(board, AISymbol, playerSymbol, alpha=-math.inf, beta=math.inf, depth=0, maximizing=False):
+    # Checks winner, important since the algorithm is recursive
+    result = isGameOver(board)
+    if result == AISymbol:
+        return 10 - depth # How faster wins better
+    elif result == playerSymbol:
+        return -1
+    elif result == 'Draw':
+        return 0
+
+    if maximizing:
+        # Starts with the worst possible value for alpha (wants to maximize this)
+        max_value = -math.inf
+        # Goes through all possible moves
+        for (i, j) in possible_moves(board):
+            # Simulates the move
+            board[i][j] = AISymbol
+            # Recursively calls minimax for the opponent (maximizing = False)
+            value = minimax(board, AISymbol, playerSymbol, alpha, beta, depth+1)
+            # Undoes the simulation (backtracking)
+            board[i][j] = ' '
+            max_value = max(max_value, value)
+            alpha = max(alpha, value)
+            # This branch can be ignored
+            if beta <= alpha:
+                break
+        return max_value
+    else:
+        # Starts with the worst possible value for beta (wants to minimize this)
+        min_value = math.inf
+        for (i, j) in possible_moves(board):
+            # Simulates the move
+            board[i][j] = playerSymbol
+            # Recursively calls minimax for the opponent (maximizing = True)
+            value = minimax(board, AISymbol, playerSymbol, alpha, beta, depth+1, maximizing=True)
+            # Undoes the simulation (backtracking)
+            board[i][j] = ' '
+            min_value = min(min_value, value)
+            beta = min(beta, value)
+            # This branch can be ignored
+            if beta <= alpha:
+                break
+        return min_value
+
+#####
+# Determines the best possible move for the AI based on the current board state.
+#
+# Parameters:
+# - board: current game board
+# - AISymbol: symbol used by the AI
+# - playerSymbol: symbol used by the player
+#
+# Returns:
+# - Tuple (i, j) representing the row and column of the best move
+#####
+def best_move(board, AISymbol, playerSymbol):
+    max_value = -math.inf
+    move = None
+    # The starter of the minimax algorithm
+    for (i, j) in possible_moves(board):
+        board[i][j] = AISymbol
+        value = minimax(board, AISymbol, playerSymbol)
+        board[i][j] = ' '
+        if value > max_value:
+            max_value = value
+            move = (i, j)
+    return move
+
+#####
+# Main game loop that allows the player to play against the AI.
+#####
+def play():
+    # Init board
+    board = [[' ' for _ in range(3)] for _ in range(3)]
+
+    # The user selects its symbol
+    playerSymbol = input("Do you want to be X or O? ").upper()
+    while playerSymbol not in ['X', 'O']:
+        playerSymbol = input("Choose X or O: ").upper()
+    AISymbol = 'O' if playerSymbol == 'X' else 'X'
+
+    # X always starts
+    turn = 'X'  
+
+    while True:
+        # Show current board state
+        show_board(board)
+
+        # Endgame check
+        winner = isGameOver(board)
+        if winner:
+            if winner == 'Draw':
+                print("It's a draw!")
+            else:
+                print(f"{winner} wins!")
+            break
+
+        # Player turn
+        if turn == playerSymbol:
+            try:
+                i, j = map(int, input("Your move (row and column, from 0 to 2): ").split())
+                if board[i][j] == ' ':
+                    board[i][j] = playerSymbol
+                    turn = AISymbol
+                else:
+                    print("Position already taken. Try again.")
+            except:
+                print("Invalid input. Enter two numbers from 0 to 2.")
+        # IA turn
+        else:
+            print("AI is thinking...")
+            i, j = best_move(board, AISymbol, playerSymbol)
+            board[i][j] = AISymbol
+            turn = playerSymbol
+
+#####
+# Displays the current board in a readable format.
+#
+# Parameters:
+# - board: current game board
+#####
+def show_board(board):
+    for row in board:
+        print(" | ".join(row))
+        print("-" * 10)
+
+#####
+# Checks whether the game is over.
+#
+# Parameters:
+# - board: current game board
+#
+# Returns:
+# - 'X' if X wins
+# - 'O' if O wins
+# - 'Draw' if the board is full with no winner
+# - None if the game is still ongoing
+#####
+
+def isGameOver(board):
+    rows = board
+    columns = [list(col) for col in zip(*board)]
+    diagonals = [[board[i][i] for i in range(3)],
+                 [board[i][2 - i] for i in range(3)]]
+
+    for line in rows + columns + diagonals:
+        if line == ['X'] * 3:
             return 'X'
-        elif linha == ['O'] * 3:
+        elif line == ['O'] * 3:
             return 'O'
 
-    # Se todos as posições não estiverem vazias, o tabuleiro está cheio (Empate).
-    if all(position != ' ' for linha in tabuleiro for position in linha):
-        return 'Empate'
+    # If all positions are not empty, the board is full (Draw).
+    if all(position != ' ' for row in board for position in row):
+        return 'Draw'
 
     return None
 
-# Retorna as posições disponíveis no tabuleiro como tuplas (i, j)
-def movimentos_possiveis(tabuleiro):
-    # Checa se a posição está vazia, caso sim, a inclui na lista de retorno.
-    return [(i, j) for i in range(3) for j in range(3) if tabuleiro[i][j] == ' ']
+#####
+# Returns a list of available moves on the board.
+#
+# Parameters:
+# - board: current game board
+#
+# Returns:
+# - List of tuples (i, j) representing empty cells
+#####
+def possible_moves(board):
+    # Checks if the position is empty, if so, includes it in the return list.
+    return [(i, j) for i in range(3) for j in range(3) if board[i][j] == ' ']
 
-# Algoritmo Minimax com poda alpha-beta, essa função é chamada por melhor_jogada
-def minimax(tabuleiro, maximizando, alpha, beta):
-    # Checa vencedor, importante pois o algoritmo é recursivo
-    resultado = checar_vencedor(tabuleiro)
-    if resultado == 'X':
-        return 1
-    elif resultado == 'O':
-        return -1
-    elif resultado == 'Empate':
-        return 0
-
-    if maximizando:
-        # Começamos com o pior valor possível para alpha (ele quer maximizar isso)
-        valor_maximo = -math.inf
-        # Percorre todas as jogadas possíveis
-        for (i, j) in movimentos_possiveis(tabuleiro):
-            # Simula a jogada
-            tabuleiro[i][j] = 'X'
-            # Chama recursivamente o minimax para o oponente (maximizando = False)
-            valor = minimax(tabuleiro, False, alpha, beta)
-            # Desfaz a simulação (backtracking)
-            tabuleiro[i][j] = ' '
-            valor_maximo = max(valor_maximo, valor)
-            alpha = max(alpha, valor)
-            # Esse ramo pode ser ignorado
-            if beta <= alpha:
-                break
-        return valor_maximo
-    else:
-        # Começamos com o pior valor possível para beta (ele quer minimizar isso)
-        valor_minimo = math.inf
-        for (i, j) in movimentos_possiveis(tabuleiro):
-            # Simula a jogada
-            tabuleiro[i][j] = 'O'
-            # Chama recursivamente o minimax para o oponente (maximizando = True)
-            valor = minimax(tabuleiro, True, alpha, beta)
-            # Desfaz a simulação (backtracking)
-            tabuleiro[i][j] = ' '
-            valor_minimo = min(valor_minimo, valor)
-            beta = min(beta, valor)
-            # Esse ramo pode ser ignorado
-            if beta <= alpha:
-                break
-        return valor_minimo
-
-# Retorna a melhor jogada da IA
-def melhor_jogada(tabuleiro, ia):
-    valor_maximo = -math.inf
-    jogada = None
-    for (i, j) in movimentos_possiveis(tabuleiro):
-        tabuleiro[i][j] = ia
-        valor = minimax(tabuleiro, ia == 'X', -math.inf, math.inf)
-        tabuleiro[i][j] = ' '
-        if valor > valor_maximo:
-            valor_maximo = valor
-            jogada = (i, j)
-    return jogada
-
-# Função para imprimir o tabuleiro
-def mostrar_tabuleiro(tabuleiro):
-    for linha in tabuleiro:
-        print(" | ".join(linha))
-        print("-" * 10)
-
-# Jogo interativo
-def jogar():
-    tabuleiro = [[' ' for _ in range(3)] for _ in range(3)]
-    jogador = input("Você quer ser X ou O? ").upper()
-    ia = 'O' if jogador == 'X' else 'X'
-
-    turno = 'X'  # X sempre começa
-
-    while True:
-        # Estado atual do tabuleiro
-        mostrar_tabuleiro(tabuleiro)
-
-        # Teste de término
-        vencedor = checar_vencedor(tabuleiro)
-        if vencedor:
-            if vencedor == 'Empate':
-                print("Empate!")
-            else:
-                print(f"{vencedor} venceu!")
-            break
-
-        if turno == jogador:
-            try:
-                i, j = map(int, input("Sua jogada (linha e coluna, de 0 a 2): ").split())
-                if tabuleiro[i][j] == ' ':
-                    tabuleiro[i][j] = jogador
-                    turno = ia
-                else:
-                    print("Posição ocupada. Tente novamente.")
-            except:
-                print("Entrada inválida. Digite dois números de 0 a 2.")
-        else:
-            print("IA está pensando...")
-            i, j = melhor_jogada(tabuleiro, ia)
-            tabuleiro[i][j] = ia
-            turno = jogador
-
-# Iniciar o jogo
+# Start the game
 if __name__ == "__main__":
-    jogar()
+    play()

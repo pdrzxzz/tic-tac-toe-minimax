@@ -1,7 +1,6 @@
 # Tic-Tac-Toe with AI (Minimax Algorithm)
 
 A simple terminal-based **Tic-Tac-Toe** game written in Python where a human player competes against an AI.  
-The AI uses the **Minimax algorithm with Alpha-Beta pruning** to play optimally.
 
 ## 🧠 About the AI
 

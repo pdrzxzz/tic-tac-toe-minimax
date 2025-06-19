@@ -61,7 +61,7 @@ O wins!
 
 Este projeto é **open-source** e gratuito para uso.
 
-Feito com ☕ por **Emanuel Pedroza**
+Made by [pdrzxzz](https://github.com/pdrzxzz) | Computer Science Student 🎓
 
 ![MuaKissGIF (2)](https://github.com/user-attachments/assets/2bc84399-8890-47c4-bca9-74546d5d07a6)
 
